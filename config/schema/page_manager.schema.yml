@@ -29,6 +29,22 @@ page_manager.page.*:
       sequence:
         - type: condition.plugin.[id]
           label: 'Access Condition'
+    static_context:
+      type: sequence
+      label: Static context list
+      sequence:
+        - type: mapping
+          label: 'Static context'
+          mapping:
+            label:
+              type: label
+              label: 'Label of the context'
+            type:
+              type: string
+              label: 'Context type'
+            value:
+              type: string
+              label: 'Context value'
 
 page_manager.block_plugin.*:
   type: block.settings.[id]

@@ -114,6 +114,15 @@ class Page extends ConfigEntityBase implements PageInterface {
   protected $use_admin_theme;
 
   /**
+   * Static context references.
+   *
+   * A list of arrays with the keys name, label, type and value.
+   *
+   * @var array
+   */
+  protected $static_context = [];
+
+  /**
    * Stores a reference to the executable version of this page.
    *
    * This is only used on runtime, and is not stored.
@@ -154,6 +163,7 @@ class Page extends ConfigEntityBase implements PageInterface {
       'access_conditions',
       'access_logic',
       'use_admin_theme',
+      'static_context',
     ];
     foreach ($names as $name) {
       $properties[$name] = $this->get($name);
@@ -282,6 +292,38 @@ class Page extends ConfigEntityBase implements PageInterface {
    */
   public function getAccessLogic() {
     return $this->access_logic;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStaticContexts() {
+    return $this->static_context;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStaticContext($name) {
+    if (isset($this->static_context[$name])) {
+      return $this->static_context[$name];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setStaticContext($name, $configuration) {
+    $this->static_context[$name] = $configuration;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeStaticContext($name) {
+    unset($this->static_context[$name]);
+    return $this;
   }
 
   /**
