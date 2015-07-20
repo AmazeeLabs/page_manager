@@ -16,6 +16,8 @@ use Symfony\Component\Routing\RouteCollection;
 
 /**
  * Provides routes for page entities.
+ *
+ * @see \Drupal\page_manager\Entity\PageViewBuilder
  */
 class PageManagerRoutes extends RouteSubscriberBase {
 
@@ -59,6 +61,7 @@ class PageManagerRoutes extends RouteSubscriberBase {
         ],
       ];
 
+      $altered_route = FALSE;
       // Loop through all existing routes to see if this is overriding a route.
       foreach ($collection->all() as $name => $collection_route) {
         // Find all paths which match the path of the current display.
@@ -72,12 +75,35 @@ class PageManagerRoutes extends RouteSubscriberBase {
           // Merge in any route parameter definitions.
           $parameters += $collection_route->getOption('parameters') ?: [];
 
+          $altered_route = TRUE;
+
           // Update the route name this will be added to.
           $route_name = $name;
           // Remove the existing route.
           $collection->remove($route_name);
           break;
         }
+      }
+
+      $arguments = [];
+      // Replace % placeholders with proper route slugs ("{arg}") and set
+      // parameter types.
+      if (!$altered_route) {
+        $bits = explode('/', $path);
+        $arg_counter = 0;
+        foreach ($bits as $pos => $bit) {
+          // Allowed placeholder patterns: %, %arg, %arg.type
+          if (preg_match('/%(([\w_]+)\.)?([\w_]+)/', $bit, $matches)) {
+            list($bit, $argdot, $arg, $type) = $matches;
+            $arg = $arg ?: 'arg_' . $arg_counter++;
+            $arguments[$arg] = NULL;
+            $bits[$pos] = '{' . $arg . '}';
+            $parameters[$arg] = [
+              'type' => $type,
+            ];
+          }
+        }
+        $path = implode('/', $bits);
       }
 
       // Construct an add a new route.
@@ -87,7 +113,7 @@ class PageManagerRoutes extends RouteSubscriberBase {
           '_entity_view' => 'page_manager_page',
           'page_manager_page' => $entity_id,
           '_title' => $entity->label(),
-        ],
+        ] + $arguments,
         [
           '_entity_access' => 'page_manager_page.view',
         ],
