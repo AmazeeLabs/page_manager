@@ -159,6 +159,11 @@ class PageBlockDisplayVariant extends BlockDisplayVariant {
       '#default_value' => $this->configuration['page_title'] ?: '',
     ];
 
+    $form['uuid'] = [
+      '#type' => 'value',
+      '#value' => $this->configuration['uuid'] ? : $this->uuidGenerator->generate(),
+    ];
+
     return $form;
   }
 
@@ -170,6 +175,9 @@ class PageBlockDisplayVariant extends BlockDisplayVariant {
 
     if ($form_state->hasValue('page_title')) {
       $this->configuration['page_title'] = $form_state->getValue('page_title');
+    }
+    if ($form_state->hasValue('uuid')) {
+      $this->configuration['uuid'] = $form_state->getValue('uuid');
     }
   }
 
